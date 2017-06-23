@@ -1665,6 +1665,11 @@ nwamui_util_ncp_init_acquired_ip(NwamuiNcp *ncp)
     if (getifaddrs(&ifap) == 0) {
 
         for (idx = ifap; idx; idx = idx->ifa_next) {
+            if (idx->ifa_addr->sa_family != AF_INET
+              && idx->ifa_addr->sa_family != AF_INET6) {
+                continue;
+            }
+
             ncu = nwamui_ncp_get_ncu_by_device_name(ncp, idx->ifa_name);
 
             if (ncu) {
