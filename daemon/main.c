@@ -170,11 +170,6 @@ main( int argc, char* argv[] )
         g_debug("Uniqueness is disabled while in debug mode.");
     }
 
-    /* Initialise Thread Support */
-    if (!g_thread_supported()) {
-        g_thread_init(NULL);
-    }
-
     NWAM_TYPE_TREE_VIEW; /* Dummy to cause NwamTreeView to be loaded for GtkBuilder to find symbol */
 
     

@@ -137,9 +137,6 @@ main(int argc, char** argv)
     textdomain (GETTEXT_PACKAGE);
     g_option_context_add_main_entries(option_context, application_options, GETTEXT_PACKAGE);
 
-    /* Initialise Thread Support */
-    g_thread_init( NULL );
-    
     /* Setup log handler to trap debug messages */
     nwamui_util_default_log_handler_init();
 

@@ -69,9 +69,6 @@ main(int argc, char** argv)
     GError*         err = NULL;
     NwamuiDaemon*   daemon = NULL;
     
-    /* Initialise Thread Support */
-    g_thread_init( NULL );
-
     /* g_type_init_with_debug_flags( G_TYPE_DEBUG_OBJECTS | G_TYPE_DEBUG_SIGNALS  ); */
     
     /* Initialize i18n support */
