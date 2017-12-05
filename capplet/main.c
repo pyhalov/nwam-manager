@@ -105,7 +105,7 @@ activate (GApplication *app, gpointer user_data)
         dialog_iface = NWAM_PREF_IFACE(user_data);
     }
 
-    nwamui_debug("Got activate signal");
+    g_debug("Got activate signal");
     if ( dialog_iface != NULL ) {
          capplet_dialog_raise( dialog_iface );
     }
