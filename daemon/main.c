@@ -86,17 +86,19 @@ init_wait_for_embedding(gpointer data)
     return( TRUE );
 }
 
+#define NUM_SMPROPS 5
+
 static void
 set_restart_command(int argc, char* argv[])
 {
     int i = 0;
     char smerr[256];
     char *client_id;
-    SmProp *props[2];
-    SmProp prop1, prop2;
-    SmPropValue propval, *propvals;
+    SmProp *props[NUM_SMPROPS];
+    SmProp prop1, prop2, prop3, prop4, prop5;
+    SmPropValue propval, *propvals, prop4val, prop5val;
     unsigned char hint = SmRestartImmediately;
-    int nprops = 2;
+    int nprops = NUM_SMPROPS;
     static const char *sm_client_id_arg_name = "--sm-client-id";
 
     SmcConn smc_conn = SmcOpenConnection(NULL, NULL,
@@ -132,8 +134,32 @@ set_restart_command(int argc, char* argv[])
     prop2.num_vals = i;		
     prop2.vals = propvals;
 
+    prop3.name = SmCloneCommand;
+    prop3.type = SmLISTofARRAY8;
+    prop3.num_vals = i;
+    prop3.vals = propvals;
+
+    prop4.name = SmUserID;
+    prop4.type = SmARRAY8;
+    prop4.num_vals = 1;
+    prop4.vals = &prop4val;
+    prop4val.value = (char *)g_get_user_name();
+    prop4val.length = strlen(prop4val.value);
+
+    prop5.name = SmProgram;
+    prop5.type = SmARRAY8;
+    prop5.num_vals = 1;
+    prop5.vals = &prop5val;
+    prop5val.value = (char *)g_get_prgname();
+    if (!prop5val.value)
+        prop5val.value = "<unknown program>";
+    prop5val.length = strlen(prop4val.value);
+
     props[0] = &prop1;
     props[1] = &prop2;
+    props[2] = &prop3;
+    props[3] = &prop4;
+    props[4] = &prop5;
 
     SmcSetProperties(smc_conn, nprops, props);
 
