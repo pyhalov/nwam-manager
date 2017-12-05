@@ -147,10 +147,10 @@ main( int argc, char* argv[] )
     gtk_init( &argc, &argv );
 
     if ( !nwamui_util_is_debug_mode() ) {
-	GtkApplication *app = NULL;
+	GApplication *app = NULL;
 	GError *error = NULL;
 
-	app = gtk_application_new("com.sun.nwam-manager", 0);
+	app = g_application_new("com.sun.nwam-manager", 0);
 	g_application_register (G_APPLICATION (app), NULL, &error);
 	if (error != NULL) {
 	    g_warning ("Unable to register GApplication: %s", error->message);

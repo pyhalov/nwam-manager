@@ -97,7 +97,7 @@ customwidgethandler(GladeXML *xml,
     return NULL;
 }
 static void
-activate (GtkApplication *app, gpointer user_data)
+activate (GApplication *app, gpointer user_data)
 {
     NwamPrefIFace   *dialog_iface = NULL;
 
@@ -112,7 +112,7 @@ activate (GtkApplication *app, gpointer user_data)
 }
 
 static void
-add_unique_message_handler( UniqueApp *app, NwamPrefIFace *capplet_dialog )
+add_unique_message_handler(GApplication *app, NwamPrefIFace *capplet_dialog )
 {
     if ( app != NULL ) {
         g_signal_connect(app, "activate", G_CALLBACK (activate), (gpointer)capplet_dialog);
@@ -125,7 +125,7 @@ add_unique_message_handler( UniqueApp *app, NwamPrefIFace *capplet_dialog )
 int
 main(int argc, char** argv) 
 {
-    GtkApplication  *app            = NULL;
+    GApplication  *app            = NULL;
     GOptionContext*  option_context = NULL;
     GError*          err            = NULL;
     NwamPrefIFace   *capplet_dialog = NULL;
@@ -154,9 +154,9 @@ main(int argc, char** argv)
         prof = nwamui_prof_get_instance_noref();
     }
 
-    app = gtk_application_new("com.sun.nwam-manager-properties", 0);
+    app = g_application_new("com.sun.nwam-manager-properties", 0);
     if ( !nwamui_util_is_debug_mode() ) {
-        GtkApplication *app = NULL;
+        GApplication *app = NULL;
         GError *error = NULL;
 
         g_application_register (G_APPLICATION (app), NULL, &error);
