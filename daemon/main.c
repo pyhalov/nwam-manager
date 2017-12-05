@@ -88,9 +88,7 @@ init_wait_for_embedding(gpointer data)
 int
 main( int argc, char* argv[] )
 {
-    GnomeProgram *program;
     GOptionContext *option_context;
-    GnomeClient *client;
     struct sigaction act;
     NwamuiProf* prof;
     GtkStatusIcon *status_icon = NULL;
@@ -101,12 +99,6 @@ main( int argc, char* argv[] )
     bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
     textdomain (GETTEXT_PACKAGE);
     g_option_context_add_main_entries(option_context, option_entries, GETTEXT_PACKAGE);
-
-    program = gnome_program_init (PACKAGE, VERSION, LIBGNOMEUI_MODULE,
-                                  argc, argv,
-                                  GNOME_PARAM_APP_DATADIR, NWAM_MANAGER_DATADIR,
-                                  GNOME_PARAM_GOPTION_CONTEXT, option_context,
-                                  GNOME_PARAM_NONE);
 
 
     gtk_icon_theme_append_search_path (gtk_icon_theme_get_default (),
@@ -188,7 +180,6 @@ main( int argc, char* argv[] )
     g_debug ("exiting...");
 
     g_object_unref(status_icon);
-    g_object_unref (G_OBJECT (program));
     
     return 0;
 }
