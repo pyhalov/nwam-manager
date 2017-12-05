@@ -28,7 +28,6 @@
 #include <stdlib.h>
 #include <gtk/gtk.h>
 #include <glib/gi18n.h>
-#include <libgnomeui/libgnomeui.h>
 
 #include <libnwamui.h>
 
@@ -66,7 +65,6 @@ GOptionEntry application_options[] = {
 int
 main(int argc, char** argv) 
 {
-    GnomeProgram *program;
     GOptionContext*	option_context = NULL;
     GError*         err = NULL;
     NwamuiDaemon*   daemon = NULL;
@@ -85,11 +83,7 @@ main(int argc, char** argv)
     option_context = g_option_context_new("test-nwam");
     g_option_context_add_main_entries(option_context, application_options, NULL);
     
-    program = gnome_program_init (PACKAGE, VERSION, LIBGNOMEUI_MODULE,
-                                  argc, argv,
-                                  GNOME_PARAM_APP_DATADIR, NWAM_MANAGER_DATADIR,
-                                  GNOME_PARAM_GOPTION_CONTEXT, option_context,
-                                  GNOME_PARAM_NONE);
+    gtk_init(&argc, &argv);
 
     nwamui_util_set_debug_mode( debug );
 
@@ -107,8 +101,6 @@ main(int argc, char** argv)
     test_known_wlan_gobject();
 
     gtk_main();
-
-    g_object_unref (G_OBJECT (program));
 
     return (EXIT_SUCCESS);
 }

@@ -33,7 +33,6 @@
 #include <gdk/gdkx.h>
 #include <glib/gi18n.h>
 #include <libnwamui.h>
-#include <libgnome/libgnome.h>
 #include <string.h>
 #include <strings.h>
 #include <unistd.h>
@@ -50,6 +49,8 @@
 #define NWAM_ENVIRONMENT_RENAME     "nwam_environment_rename"
 #define RENAME_ENVIRONMENT_ENTRY    "rename_environment_entry"
 #define RENAME_ENVIRONMENT_OK_BTN   "rename_environment_ok_btn"
+
+#define HELP_DOCUMENT "/gnome/help/nwam-manager/C/nwam-manager.xml"
 
 #define PIXBUF_COMPOSITE_NO_SCALE(src, dest)                            \
     gdk_pixbuf_composite(GDK_PIXBUF(src), GDK_PIXBUF(dest),             \
@@ -869,10 +870,19 @@ nwamui_util_get_wireless_strength_icon_with_size( nwamui_wifi_signal_strength_t 
 extern void
 nwamui_util_show_help( const gchar* link_name )
 {
-  GError *error = NULL;
+  GError *error;
+  gchar *child_argv[3];
+
+  child_argv[0] = "yelp";
+  if (link_name) {
+    child_argv[1] = g_strconcat(NWAM_MANAGER_DATADIR, HELP_DOCUMENT, "?", link_name, NULL);
+  } else {
+    child_argv[1] = g_strconcat(NWAM_MANAGER_DATADIR, HELP_DOCUMENT, NULL);
+  }
   
-  gnome_help_display(PACKAGE, (link_name?link_name:""), &error);
-  
+  error = NULL;
+  g_spawn_async(NULL, child_argv, NULL, G_SPAWN_SEARCH_PATH, NULL, NULL, NULL, &error);
+
   if (error) {
     GtkWidget *dialog;
     dialog = gtk_message_dialog_new_with_markup (NULL, GTK_DIALOG_MODAL, 

@@ -28,9 +28,7 @@
 #include <stdlib.h>
 #include <gtk/gtk.h>
 #include <glib/gi18n.h>
-#include <libgnomeui/libgnomeui.h>
 #include <glade/glade-xml.h>
-#include <unique/unique.h>
 
 #include <libnwamui.h>
 #include "nwam_tree_view.h"
@@ -98,12 +96,8 @@ customwidgethandler(GladeXML *xml,
 
     return NULL;
 }
-static UniqueResponse
-nwamui_unique_message_handler(  UniqueApp         *app,
-                                gint               command,
-                                UniqueMessageData *message_data,
-                                guint              time_,
-                                gpointer           user_data) 
+static void
+activate (GtkApplication *app, gpointer user_data)
 {
     NwamPrefIFace   *dialog_iface = NULL;
 
@@ -111,27 +105,17 @@ nwamui_unique_message_handler(  UniqueApp         *app,
         dialog_iface = NWAM_PREF_IFACE(user_data);
     }
 
-    switch ( command ) {
-        case UNIQUE_ACTIVATE:
-            nwamui_debug("Got Unique ACTIVATE command (%d)", command );
-            if ( dialog_iface != NULL ) {
-                capplet_dialog_raise( dialog_iface );
-                return( UNIQUE_RESPONSE_OK );
-            }
-            break;
-        default:
-            nwamui_debug("Got unexpected Unique command %d, ignoring...", command );
-            break;
+    nwamui_debug("Got activate signal");
+    if ( dialog_iface != NULL ) {
+         capplet_dialog_raise( dialog_iface );
     }
-
-    return( UNIQUE_RESPONSE_PASSTHROUGH );
 }
 
 static void
 add_unique_message_handler( UniqueApp *app, NwamPrefIFace *capplet_dialog )
 {
     if ( app != NULL ) {
-        g_signal_connect(app, "message-received", (GCallback)nwamui_unique_message_handler, (gpointer)capplet_dialog);
+        g_signal_connect(app, "activate", G_CALLBACK (activate), (gpointer)capplet_dialog);
     }
 }
 
@@ -141,8 +125,7 @@ add_unique_message_handler( UniqueApp *app, NwamPrefIFace *capplet_dialog )
 int
 main(int argc, char** argv) 
 {
-    UniqueApp       *app            = NULL;
-    GnomeProgram*    program        = NULL;
+    GtkApplication  *app            = NULL;
     GOptionContext*  option_context = NULL;
     GError*          err            = NULL;
     NwamPrefIFace   *capplet_dialog = NULL;
@@ -160,12 +143,6 @@ main(int argc, char** argv)
     /* Setup log handler to trap debug messages */
     nwamui_util_default_log_handler_init();
 
-    program = gnome_program_init (PACKAGE, VERSION, LIBGNOMEUI_MODULE,
-                                  argc, argv,
-                                  GNOME_PARAM_GOPTION_CONTEXT, option_context,
-                                  GNOME_PARAM_APP_DATADIR, NWAM_MANAGER_DATADIR,
-                                  GNOME_PARAM_NONE);
-
     nwamui_util_set_debug_mode( debug );
 
     if (!nwamui_prof_check_ui_auth(nwamui_prof_get_instance_noref(), UI_AUTH_ALL)) {
@@ -180,11 +157,20 @@ main(int argc, char** argv)
         prof = nwamui_prof_get_instance_noref();
     }
 
-    app = unique_app_new("com.sun.nwam-manager-properties", NULL);
+    app = gtk_application_new("com.sun.nwam-manager-properties", 0);
     if ( !nwamui_util_is_debug_mode() ) {
-        if (unique_app_is_running(app)) {
+        GtkApplication *app = NULL;
+        GError *error = NULL;
+
+        g_application_register (G_APPLICATION (app), NULL, &error);
+        if (error != NULL) {
+            g_warning ("Unable to register GApplication: %s", error->message);
+            g_error_free (error);
+            error = NULL;
+        }
+        if (g_application_get_is_remote (G_APPLICATION (app))) {
             /* Send request to other app to show itself */
-            unique_app_send_message(app, UNIQUE_ACTIVATE, NULL);
+            g_application_activate(G_APPLICATION (app));
             /*
             nwamui_util_show_message( NULL, GTK_MESSAGE_INFO, _("NWAM Manager Properties"),
                                       _("\nAnother instance is running.\nThis instance will exit now."), TRUE );
@@ -200,11 +186,6 @@ main(int argc, char** argv)
     gtk_icon_theme_append_search_path (gtk_icon_theme_get_default (),
                            NWAM_MANAGER_DATADIR G_DIR_SEPARATOR_S "icons");
 
-#if 0
-    /*
-     * We probably don't need this any more if we are using
-     * gnome_program_init.
-     */
     if (gtk_init_with_args(&argc, &argv, _("NWAM Configuration Capplet"), application_options, NULL, &err) == FALSE ) {
         if ( err != NULL && err->message != NULL ) {
             g_printerr(err->message);
@@ -215,7 +196,6 @@ main(int argc, char** argv)
         }
         exit(1);
     }
-#endif
 
     glade_set_custom_handler(customwidgethandler, NULL);
 

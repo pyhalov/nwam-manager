@@ -26,12 +26,10 @@
  */
 #include <gtk/gtk.h>
 #include <glib/gi18n.h>
-#include <libgnomeui/libgnomeui.h>
 #include <sys/types.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <signal.h>
-#include <unique/unique.h>
 
 #include "libnwamui.h"
 #include "nwam_tree_view.h"
@@ -146,28 +144,31 @@ main( int argc, char* argv[] )
     }
 #endif
 
-    if ( !nwamui_util_is_debug_mode() ) {
-        UniqueApp       *app            = NULL;
+    gtk_init( &argc, &argv );
 
-        app = unique_app_new("com.sun.nwam-manager", NULL);
-        if (unique_app_is_running(app)) {
-/*         unique_app_add_command(app, "", 1); */
-/*         unique_app_send_message(app, 1, NULL); */
+    if ( !nwamui_util_is_debug_mode() ) {
+	GtkApplication *app = NULL;
+	GError *error = NULL;
+
+	app = gtk_application_new("com.sun.nwam-manager", 0);
+	g_application_register (G_APPLICATION (app), NULL, &error);
+	if (error != NULL) {
+	    g_warning ("Unable to register GApplication: %s", error->message);
+	    g_error_free (error);
+	    error = NULL;
+	}
+	if (g_application_get_is_remote (G_APPLICATION (app))) {
             nwamui_util_show_message( NULL, GTK_MESSAGE_INFO, _("NWAM Manager"),
                                       _("\nAnother instance is running.\nThis instance will exit now."), TRUE );
             g_debug("Another instance is running, exiting.");
-            exit(0);
-        }
-
-        client = gnome_master_client ();
-        gnome_client_set_restart_command (client, argc, argv);
-        gnome_client_set_restart_style (client, GNOME_RESTART_IMMEDIATELY);
+	    g_object_unref (app);
+	    exit(0);
+	}
+	g_object_unref (app);
     }
     else {
-        g_debug("Auto restart and uniqueness disabled while in debug mode.");
+        g_debug("Uniqueness is disabled while in debug mode.");
     }
-
-    gtk_init( &argc, &argv );
 
     /* Initialise Thread Support */
     if (!g_thread_supported()) {
