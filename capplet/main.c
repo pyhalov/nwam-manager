@@ -156,7 +156,6 @@ main(int argc, char** argv)
 
     app = g_application_new("com.sun.nwam-manager-properties", 0);
     if ( !nwamui_util_is_debug_mode() ) {
-        GApplication *app = NULL;
         GError *error = NULL;
 
         g_application_register (G_APPLICATION (app), NULL, &error);
