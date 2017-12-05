@@ -30,6 +30,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <signal.h>
+#include <X11/SM/SMlib.h>
 
 #include "libnwamui.h"
 #include "nwam_tree_view.h"
@@ -83,6 +84,62 @@ init_wait_for_embedding(gpointer data)
           g_object_unref);
     }
     return( TRUE );
+}
+
+static void
+set_restart_command(int argc, char* argv[])
+{
+    int i = 0;
+    char smerr[256];
+    char *client_id;
+    SmProp *props[2];
+    SmProp prop1, prop2;
+    SmPropValue propval, *propvals;
+    unsigned char hint = SmRestartImmediately;
+    int nprops = 2;
+    static const char *sm_client_id_arg_name = "--sm-client-id";
+
+    SmcConn smc_conn = SmcOpenConnection(NULL, NULL,
+                                         SmProtoMajor, SmProtoMinor,
+                                         0 /* mask */, NULL /* callbacks */,
+                                         NULL, &client_id,
+                                         sizeof(smerr), smerr);
+
+    if ( !smc_conn )
+    {
+        g_warning("Failed to connect to session manager: %s", smerr);
+        return;
+    }
+    
+    prop1.name = SmRestartStyleHint;
+    prop1.type = SmCARD8;
+    prop1.num_vals = 1;
+    prop1.vals = &propval;
+    propval.value = &hint;
+    propval.length = 1;
+
+    prop2.name = SmRestartCommand;
+    prop2.type = SmLISTofARRAY8;
+    propvals = g_new(SmPropValue, 3); /* We could use truly dynamic array if cared about all arguments */
+	
+    propvals[i].length = strlen(argv[0]);
+    propvals[i++].value = argv[0];
+
+    propvals[i].length = strlen (sm_client_id_arg_name);
+    propvals[i++].value = (char *) sm_client_id_arg_name;
+    propvals[i].length = strlen (client_id);
+    propvals[i++].value = client_id;
+    prop2.num_vals = i;		
+    prop2.vals = propvals;
+
+    props[0] = &prop1;
+    props[1] = &prop2;
+
+    SmcSetProperties(smc_conn, nprops, props);
+
+    SmcCloseConnection(smc_conn, 0, NULL);
+    g_free(propvals);
+    g_free(client_id);
 }
 
 int
@@ -156,10 +213,11 @@ main( int argc, char* argv[] )
 	    g_object_unref (app);
 	    exit(0);
 	}
+	set_restart_command(argc, argv);
 	g_object_unref (app);
     }
     else {
-        g_debug("Uniqueness is disabled while in debug mode.");
+        g_debug("Auto restart and uniqueness disabled while in debug mode.");
     }
 
     NWAM_TYPE_TREE_VIEW; /* Dummy to cause NwamTreeView to be loaded for GtkBuilder to find symbol */
