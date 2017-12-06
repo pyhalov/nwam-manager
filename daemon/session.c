@@ -131,6 +131,7 @@ setRestartStyle (SmcConn connection,
     pProp = &prop;
 
     SmcSetProperties (connection, 1, &pProp);
+    g_warning("Just set restart style");
 }
 
 static void
@@ -193,6 +194,7 @@ saveYourselfCallback (SmcConn	connection,
     setRestartStyle (connection, SmRestartImmediately);
     setProgramInfo (connection, getpid (), getuid ());
     SmcSaveYourselfDone (connection, 1);
+    g_warning("In saveYourselfCallback");
 }
 
 static void
@@ -264,6 +266,7 @@ initSession (char *prevClientId)
 void
 closeSession (void)
 {
+    g_warning("Closing session, connected = %d\n", connected);
     if (connected)
     {
 	setRestartStyle (smcConnection, SmRestartImmediately);
