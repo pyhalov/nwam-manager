@@ -194,7 +194,7 @@ main( int argc, char* argv[] )
 
     g_object_unref(status_icon);
    
-    closeSession();
+    /*closeSession();*/
 
     g_object_unref (app);
     
