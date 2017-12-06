@@ -73,7 +73,7 @@ nwam_manager_LDADD =				\
 	$(top_srcdir)/common/libnwamui.la \
 	$(top_srcdir)/capplet/libnwamuicapplet.la \
 	$(NWAM_MANAGER_LIBS)			\
-	-lSM \
+	-lSM -lICE \
 	$(NULL)
 
 EXTRA_DIST = 		\

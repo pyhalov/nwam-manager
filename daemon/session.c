@@ -40,11 +40,14 @@
 
 static SmcConn		 smcConnection;
 static Bool		 connected = 0;
+static Bool              iceConnected = 0;
 static char		 *smClientId, *smPrevClientId;
 
 extern char *programName;
 extern char **programArgv;
 extern int  programArgc;
+
+static void iceInit ();
 
 static void
 setStringListProperty (SmcConn	  connection,
@@ -228,6 +231,8 @@ initSession (char *prevClientId)
     {
 	char errorBuffer[1024];
 
+        iceInit ();
+
 	callbacks.save_yourself.callback    = saveYourselfCallback;
 	callbacks.save_yourself.client_data = NULL;
 
@@ -289,5 +294,62 @@ closeSession (void)
 	    free (smPrevClientId);
 	    smPrevClientId = NULL;
 	}
+    }
+}
+
+/* ice connection handling taken and updated from gnome-ice.c
+ * original gnome-ice.c code written by Tom Tromey <tromey@cygnus.com>
+ */
+
+/* This is called when data is available on an ICE connection. */
+static Bool
+iceProcessMessages (void *data)
+{
+    IceConn		     connection = (IceConn) data;
+    IceProcessMessagesStatus status;
+
+    SM_DEBUG (printf ("ICE connection process messages\n"));
+
+    status = IceProcessMessages (connection, NULL, NULL);
+
+    if (status == IceProcessMessagesIOError)
+    {
+	SM_DEBUG (printf ("ICE connection process messages"
+			  " - error => shutting down the connection\n"));
+
+	IceSetShutdownNegotiation (connection, False);
+	IceCloseConnection (connection);
+    }
+
+    return 1;
+}
+
+static IceIOErrorHandler oldIceHandler;
+
+static void
+iceErrorHandler (IceConn connection)
+{
+    if (oldIceHandler)
+	(*oldIceHandler) (connection);
+}
+
+/* We call any handler installed before (or after) iceInit but
+   avoid calling the default libICE handler which does an exit() */
+static void
+iceInit (void)
+{
+    static Bool iceInitialized = 0;
+
+    if (!iceInitialized)
+    {
+	IceIOErrorHandler defaultIceHandler;
+
+	oldIceHandler	  = IceSetIOErrorHandler (NULL);
+	defaultIceHandler = IceSetIOErrorHandler (iceErrorHandler);
+
+	if (oldIceHandler == defaultIceHandler)
+	    oldIceHandler = NULL;
+
+	iceInitialized = 1;
     }
 }
