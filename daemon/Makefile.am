@@ -51,6 +51,7 @@ libexec_PROGRAMS = nwam-manager
 nwam_manager_SOURCES =		\
 	main.c			\
 	notify.c	\
+	session.c	\
 	status_icon.c	\
 	status_icon_tooltip.c	\
 	nwam-tooltip-widget.c	\
@@ -77,6 +78,7 @@ nwam_manager_LDADD =				\
 
 EXTRA_DIST = 		\
 	notify.h	\
+	session.h	\
 	status_icon.h	\
 	status_icon_tooltip.h	\
 	nwam-tooltip-widget.h	\

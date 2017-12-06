@@ -30,13 +30,14 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <signal.h>
-#include <X11/SM/SMlib.h>
 
 #include "libnwamui.h"
 #include "nwam_tree_view.h"
 
 #include "status_icon.h"
 #include "notify.h"
+
+#include "session.h"
 
 #define DETECT_ICON_EMBEDDING_INTERVAL 2 /* In seconds */
 
@@ -45,6 +46,10 @@ static gboolean debug = FALSE;
 static gboolean notify_reuse = FALSE;
 static gboolean notify_create_always = FALSE;
 static gboolean notify_create_nostatus = FALSE;
+
+char *programName;
+char **programArgv;
+int  programArgc;
 
 static GOptionEntry option_entries[] = {
     {"debug", 'D', G_OPTION_FLAG_HIDDEN, G_OPTION_ARG_NONE, &debug, N_("Enable debugging messages"), NULL },
@@ -86,88 +91,6 @@ init_wait_for_embedding(gpointer data)
     return( TRUE );
 }
 
-#define NUM_SMPROPS 5
-
-static void
-set_restart_command(int argc, char* argv[])
-{
-    int i = 0;
-    char smerr[256];
-    char *client_id;
-    SmProp *props[NUM_SMPROPS];
-    SmProp prop1, prop2, prop3, prop4, prop5;
-    SmPropValue propval, *propvals, prop4val, prop5val;
-    unsigned char hint = SmRestartImmediately;
-    int nprops = NUM_SMPROPS;
-    static const char *sm_client_id_arg_name = "--sm-client-id";
-
-    SmcConn smc_conn = SmcOpenConnection(NULL, NULL,
-                                         SmProtoMajor, SmProtoMinor,
-                                         0 /* mask */, NULL /* callbacks */,
-                                         NULL, &client_id,
-                                         sizeof(smerr), smerr);
-
-    if ( !smc_conn )
-    {
-        g_warning("Failed to connect to session manager: %s", smerr);
-        return;
-    }
-    
-    prop1.name = SmRestartStyleHint;
-    prop1.type = SmCARD8;
-    prop1.num_vals = 1;
-    prop1.vals = &propval;
-    propval.value = &hint;
-    propval.length = 1;
-
-    prop2.name = SmRestartCommand;
-    prop2.type = SmLISTofARRAY8;
-    propvals = g_new(SmPropValue, 3); /* We could use truly dynamic array if cared about all arguments */
-	
-    propvals[i].length = strlen(argv[0]);
-    propvals[i++].value = argv[0];
-
-    propvals[i].length = strlen (sm_client_id_arg_name);
-    propvals[i++].value = (char *) sm_client_id_arg_name;
-    propvals[i].length = strlen (client_id);
-    propvals[i++].value = client_id;
-    prop2.num_vals = i;		
-    prop2.vals = propvals;
-
-    prop3.name = SmCloneCommand;
-    prop3.type = SmLISTofARRAY8;
-    prop3.num_vals = i;
-    prop3.vals = propvals;
-
-    prop4.name = SmUserID;
-    prop4.type = SmARRAY8;
-    prop4.num_vals = 1;
-    prop4.vals = &prop4val;
-    prop4val.value = (char *)g_get_user_name();
-    prop4val.length = strlen(prop4val.value);
-
-    prop5.name = SmProgram;
-    prop5.type = SmARRAY8;
-    prop5.num_vals = 1;
-    prop5.vals = &prop5val;
-    prop5val.value = (char *)g_get_prgname();
-    if (!prop5val.value)
-        prop5val.value = "<unknown program>";
-    prop5val.length = strlen(prop4val.value);
-
-    props[0] = &prop1;
-    props[1] = &prop2;
-    props[2] = &prop3;
-    props[3] = &prop4;
-    props[4] = &prop5;
-
-    SmcSetProperties(smc_conn, nprops, props);
-
-    SmcCloseConnection(smc_conn, 0, NULL);
-    g_free(propvals);
-    g_free(client_id);
-}
-
 int
 main( int argc, char* argv[] )
 {
@@ -175,6 +98,8 @@ main( int argc, char* argv[] )
     struct sigaction act;
     NwamuiProf* prof;
     GtkStatusIcon *status_icon = NULL;
+
+    char *client_id = NULL;
 
     option_context = g_option_context_new (PACKAGE);
 
@@ -212,6 +137,10 @@ main( int argc, char* argv[] )
     sigaction (SIGKILL, &act, NULL);
     sigaction (SIGTERM, &act, NULL);
 
+    programName = argv[0];
+    programArgc = argc;
+    programArgv = argv;
+
 #if 0
     if (!nwamui_prof_check_ui_auth(nwamui_prof_get_instance_noref(), UI_AUTH_LEAST)) {
         g_warning("User doesn't have the enough authorisations to run nwam-manager.");
@@ -239,8 +168,9 @@ main( int argc, char* argv[] )
 	    g_object_unref (app);
 	    exit(0);
 	}
-	set_restart_command(argc, argv);
 	g_object_unref (app);
+
+    	initSession( client_id );
     }
     else {
         g_debug("Auto restart and uniqueness disabled while in debug mode.");
@@ -264,6 +194,8 @@ main( int argc, char* argv[] )
     g_debug ("exiting...");
 
     g_object_unref(status_icon);
+   
+    closeSession();
     
     return 0;
 }
