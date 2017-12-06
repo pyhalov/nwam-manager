@@ -95,8 +95,10 @@ setCloneRestartCommands (SmcConn connection)
 	    i++; /* skip old client id, we'll add the new one later */
 	else if (strcmp (programArgv[i], "--replace") == 0)
 	    continue; /* there's nothing to replace when starting session */
-	else
+	else {
 	    args[count++] = programArgv[i];
+	    g_warning("args[%d]=%s\n", count-1, args[count - 1]);
+	}
     }
 
     setStringListProperty (connection, SmCloneCommand, args, count);
