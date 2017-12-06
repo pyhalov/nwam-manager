@@ -18,7 +18,7 @@
 # CDDL HEADER END
 #
 
-SUBDIRS = common tests capplet daemon po pixmaps ui data help
+SUBDIRS = common tests capplet libegg daemon po pixmaps ui data help
 
 NWAM_CORE_INCS = \
 		nwam_core/usr/include/libdlwlan.h

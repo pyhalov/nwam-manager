@@ -186,6 +186,7 @@ AC_SUBST(KSTAT_LIBS)
 AC_CONFIG_FILES([
 Makefile
 common/Makefile
+libegg/Makefile
 tests/Makefile
 daemon/Makefile
 capplet/Makefile

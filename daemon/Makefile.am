@@ -21,6 +21,7 @@ NULL =
 
 AM_CPPFLAGS = \
 	-I$(top_srcdir)/common \
+	-I$(top_srcdir)         \
 	$(PACKAGE_CFLAGS)	\
 	$(NOTIFY_CFLAGS)	\
 	$(NWAM_MANAGER_CFLAGS)		\
@@ -71,6 +72,7 @@ nwam_manager_CPPFLAGS = \
 nwam_manager_LDADD =				\
 	$(top_srcdir)/common/libnwamui.la \
 	$(top_srcdir)/capplet/libnwamuicapplet.la \
+	$(top_srcdir)/libegg/libegg.la \
 	$(NWAM_MANAGER_LIBS)			\
 	$(NULL)
 

@@ -31,6 +31,9 @@
 #include <fcntl.h>
 #include <signal.h>
 
+#include <libegg/eggdesktopfile.h>
+#include <libegg/eggsmclient.h>
+
 #include "libnwamui.h"
 #include "nwam_tree_view.h"
 
@@ -93,15 +96,22 @@ main( int argc, char* argv[] )
     NwamuiProf* prof;
     GtkStatusIcon *status_icon = NULL;
     GApplication *app = NULL;
+    char *desktopfile = SYSCONFDIR "/xdg/autostart/nwam-manager.desktop";
 
+    EggSMClientMode  mode = EGG_SM_CLIENT_MODE_NO_RESTART;
+
+    egg_sm_client_set_mode (mode);
+    egg_set_desktop_file (desktopfile);
     option_context = g_option_context_new (PACKAGE);
 
     bindtextdomain (GETTEXT_PACKAGE, NWAM_MANAGER_LOCALEDIR);
     bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
     textdomain (GETTEXT_PACKAGE);
+    g_option_context_add_group (option_context, egg_sm_client_get_option_group ());
     g_option_context_add_main_entries(option_context, option_entries, GETTEXT_PACKAGE);
 
     gtk_init( &argc, &argv );
+
 
     gtk_icon_theme_append_search_path (gtk_icon_theme_get_default (),
                            NWAM_MANAGER_DATADIR G_DIR_SEPARATOR_S "icons");
@@ -155,6 +165,9 @@ main( int argc, char* argv[] )
 	        g_object_unref (app);
 	        exit(0);
 	    }
+
+            mode = EGG_SM_CLIENT_MODE_NORMAL;
+            egg_sm_client_set_mode (mode);
         }
     }
     else {
