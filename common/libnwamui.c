@@ -879,6 +879,7 @@ nwamui_util_show_help( const gchar* link_name )
   } else {
     child_argv[1] = g_strconcat("file://", NWAM_MANAGER_DATADIR, HELP_DOCUMENT, NULL);
   }
+  child_argv[2] = NULL;
   
   error = NULL;
   g_spawn_async(NULL, child_argv, NULL, G_SPAWN_SEARCH_PATH, NULL, NULL, NULL, &error);
