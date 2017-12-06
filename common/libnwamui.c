@@ -875,9 +875,9 @@ nwamui_util_show_help( const gchar* link_name )
 
   child_argv[0] = "yelp";
   if (link_name) {
-    child_argv[1] = g_strconcat("file://", NWAM_MANAGER_DATADIR, HELP_DOCUMENT, "?", link_name, NULL);
+    child_argv[1] = g_strconcat("ghelp://", NWAM_MANAGER_DATADIR, HELP_DOCUMENT, "?", link_name, NULL);
   } else {
-    child_argv[1] = g_strconcat("file://", NWAM_MANAGER_DATADIR, HELP_DOCUMENT, NULL);
+    child_argv[1] = g_strconcat("ghelp://", NWAM_MANAGER_DATADIR, HELP_DOCUMENT, NULL);
   }
   child_argv[2] = NULL;
   
