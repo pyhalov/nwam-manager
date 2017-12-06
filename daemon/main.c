@@ -92,6 +92,7 @@ main( int argc, char* argv[] )
     struct sigaction act;
     NwamuiProf* prof;
     GtkStatusIcon *status_icon = NULL;
+    GApplication *app = NULL;
 
     option_context = g_option_context_new (PACKAGE);
 
@@ -138,25 +139,24 @@ main( int argc, char* argv[] )
 
     gtk_init( &argc, &argv );
 
+    app = g_application_new("com.sun.nwam-manager", 0);
     if ( !nwamui_util_is_debug_mode() ) {
-	GApplication *app = NULL;
 	GError *error = NULL;
 
-	app = g_application_new("com.sun.nwam-manager", 0);
 	g_application_register (G_APPLICATION (app), NULL, &error);
 	if (error != NULL) {
 	    g_warning ("Unable to register GApplication: %s", error->message);
 	    g_error_free (error);
 	    error = NULL;
-	}
-	if (g_application_get_is_remote (G_APPLICATION (app))) {
-            nwamui_util_show_message( NULL, GTK_MESSAGE_INFO, _("NWAM Manager"),
-                                      _("\nAnother instance is running.\nThis instance will exit now."), TRUE );
-            g_debug("Another instance is running, exiting.");
-	    g_object_unref (app);
-	    exit(0);
-	}
-	g_object_unref (app);
+	} else {
+	    if (g_application_get_is_remote (G_APPLICATION (app))) {
+                nwamui_util_show_message( NULL, GTK_MESSAGE_INFO, _("NWAM Manager"),
+                                          _("\nAnother instance is running.\nThis instance will exit now."), TRUE );
+                g_debug("Another instance is running, exiting.");
+	        g_object_unref (app);
+	        exit(0);
+	    }
+        }
     }
     else {
         g_debug("Uniqueness is disabled while in debug mode.");
@@ -180,6 +180,8 @@ main( int argc, char* argv[] )
     g_debug ("exiting...");
 
     g_object_unref(status_icon);
+
+    g_object_unref(app);
     
     return 0;
 }
