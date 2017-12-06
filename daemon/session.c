@@ -259,6 +259,10 @@ initSession (char *prevClientId)
 	    connected = 1;
 	    if (prevClientId)
 		smPrevClientId = strdup (prevClientId);
+
+            setCloneRestartCommands (smcConnection);
+            setRestartStyle (smcConnection, SmRestartImmediately);
+            setProgramInfo (smcConnection, getpid (), getuid ());
 	}
     }
 }
