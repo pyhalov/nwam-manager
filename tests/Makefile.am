@@ -27,7 +27,6 @@ AM_CPPFLAGS = \
 	-DPACKAGE=\"$(PACKAGE)\" \
 	-DNWAM_MANAGER_DATADIR=\""$(pkgdatadir)"\"			\
 	-DNWAM_MANAGER_LOCALEDIR=\""$(prefix)/$(DATADIRNAME)/locale"\"	\
-	-DGLADEDIR=\""$(gladedir)"\"			\
 	-DUIDATA=\""$(uidir)/$(ui_DATA)"\"			\
 	-DSYSCONFDIR=\"$(sysconfdir)\"				\
 	-DGCONF_CONFIG_SOURCE=\"$(GCONF_SCHEMA_CONFIG_SOURCE)\"	\

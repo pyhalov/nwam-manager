@@ -28,7 +28,6 @@
 #include <stdlib.h>
 #include <gtk/gtk.h>
 #include <glib/gi18n.h>
-#include <glade/glade-xml.h>
 
 #include <libnwamui.h>
 #include "nwam_tree_view.h"
@@ -75,27 +74,6 @@ GOptionEntry application_options[] = {
     { NULL }
 };
 
-static GtkWidget*
-customwidgethandler(GladeXML *xml,
-  gchar *func_name,
-  gchar *name,
-  gchar *string1,
-  gchar *string2,
-  gint int1,
-  gint int2,
-  gpointer user_data)
-{
-    if (g_ascii_strcasecmp(name, "address_table") == 0 ||
-      g_ascii_strcasecmp(name, "connection_status_table") == 0 ||
-      g_ascii_strcasecmp(name, "location_tree") == 0 ||
-      g_ascii_strcasecmp(name, "vpn_apps_list") == 0 ||
-      g_ascii_strcasecmp(name, "network_profile_table") == 0) {
-        g_debug("CUSTOMIZED WIDGET %s", name);
-        return nwam_tree_view_new();
-    }
-
-    return NULL;
-}
 static void
 activate (GApplication *app, gpointer user_data)
 {
@@ -192,8 +170,6 @@ main(int argc, char** argv)
         }
         exit(1);
     }
-
-    glade_set_custom_handler(customwidgethandler, NULL);
 
     if( vpn_pref_dialog ) {
         capplet_dialog = NWAM_PREF_IFACE(nwam_vpn_pref_dialog_new());
