@@ -27,7 +27,6 @@ AM_CPPFLAGS = \
 	$(NWAM_MANAGER_CFLAGS)		\
 	-DNWAM_MANAGER_DATADIR=\""$(pkgdatadir)"\"			\
 	-DNWAM_MANAGER_LOCALEDIR=\""$(prefix)/$(DATADIRNAME)/locale"\"	\
-	-DGLADEDIR=\""$(pkgdatadir)"\"			\
 	-DSYSCONFDIR=\"$(sysconfdir)\"				\
 	-DPRINTER_HELPER_PATH=\"$(libexecdir)\"			\
 	$(NULL)
@@ -114,7 +113,6 @@ EXTRA_DIST = 		\
 	nwam_vpn_pref_dialog.h	\
 	nwam_wireless_chooser.h	\
 	nwam_wireless_dialog.h	\
-	$(glade_DATA)	\
 	$(NULL)
 
 DISTCLEANFILES =	\

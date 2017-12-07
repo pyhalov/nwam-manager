@@ -26,7 +26,6 @@ AM_CPPFLAGS = \
 	$(NWAM_MANAGER_CFLAGS)		\
 	-DNWAM_MANAGER_DATADIR=\""$(pkgdatadir)"\"			\
 	-DNWAM_MANAGER_LOCALEDIR=\""$(prefix)/$(DATADIRNAME)/locale"\"	\
-	-DGLADEDIR=\""$(gladedir)"\"			\
 	-DSYSCONFDIR=\"$(sysconfdir)\"				\
 	-DGCONF_CONFIG_SOURCE=\"$(GCONF_SCHEMA_CONFIG_SOURCE)\"	\
 	-DPRINTER_HELPER_PATH=\"$(libexecdir)\"			\

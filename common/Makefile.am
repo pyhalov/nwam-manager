@@ -25,7 +25,6 @@ AM_CPPFLAGS = \
 	$(NWAM_MANAGER_CFLAGS)		\
 	-DNWAM_MANAGER_DATADIR=\""$(datadir)"\"			\
 	-DNWAM_MANAGER_LOCALEDIR=\""$(prefix)/$(DATADIRNAME)/locale"\"	\
-	-DGLADEDIR=\""$(gladedir)"\"			\
 	-DSYSCONFDIR=\"$(sysconfdir)\"				\
 	-DPRINTER_HELPER_PATH=\"$(libexecdir)\"			\
 	$(NULL)
@@ -67,8 +66,6 @@ libnwamui_la_LIBADD =                 \
 
 
 install-data-local:
-
-gladedir   = $(datadir)/nwam-manager
 
 EXTRA_DIST = 		\
 	libnwamui.h \
