@@ -101,6 +101,7 @@ main( int argc, char* argv[] )
     textdomain (GETTEXT_PACKAGE);
     g_option_context_add_main_entries(option_context, option_entries, GETTEXT_PACKAGE);
 
+    gtk_init( &argc, &argv );
 
     gtk_icon_theme_append_search_path (gtk_icon_theme_get_default (),
                            NWAM_MANAGER_DATADIR G_DIR_SEPARATOR_S "icons");
@@ -136,8 +137,6 @@ main( int argc, char* argv[] )
         exit(0);
     }
 #endif
-
-    gtk_init( &argc, &argv );
 
     app = g_application_new("com.sun.nwam-manager", 0);
     if ( !nwamui_util_is_debug_mode() ) {
